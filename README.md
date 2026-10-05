@@ -292,6 +292,7 @@ This eliminates the need for polling—perfect for long-running processes like b
 | Variable               | Default    | Description                                        |
 | ---------------------- | ---------- | -------------------------------------------------- |
 | `PTY_MAX_BUFFER_LINES` | `50000`    | Maximum lines to keep in output buffer per session |
+| `PTY_SANITIZE_OUTPUT`  | `true`     | Strip ANSI/VT escape sequences from `pty_read` results and `<pty_exited>` notifications before they are stored in the OpenCode session. Set to `false` to preserve raw terminal output. |
 | `PTY_WEB_HOSTNAME`     | `::1`      | Hostname for the web server to bind to (IPv6 loopback by default) |
 | `PTY_WEB_PORT`         | `0` (random) | Port for the web server (0 = random port)        |
 

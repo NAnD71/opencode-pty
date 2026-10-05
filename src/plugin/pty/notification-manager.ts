@@ -2,6 +2,7 @@ import type { SessionNotifier } from '../../adapters/types.ts'
 import type { PTYSession } from './types.ts'
 import type { OpencodeClient } from '@opencode-ai/sdk'
 import { NOTIFICATION_LINE_TRUNCATE, NOTIFICATION_TITLE_TRUNCATE } from '../constants.ts'
+import { sanitizeAnsi } from './sanitize.ts'
 
 export class NotificationManager implements SessionNotifier {
   private client: OpencodeClient | null = null
@@ -70,10 +71,11 @@ export function buildExitNotification(session: PTYSession, exitCode: number): st
       const bufferLines = session.buffer.read(i, 1)
       const line = bufferLines[0]
       if (line !== undefined && line.trim() !== '') {
+        const sanitized = sanitizeAnsi(line)
         lastLine =
-          line.length > NOTIFICATION_LINE_TRUNCATE
-            ? `${line.slice(0, NOTIFICATION_LINE_TRUNCATE)}...`
-            : line
+          sanitized.length > NOTIFICATION_LINE_TRUNCATE
+            ? `${sanitized.slice(0, NOTIFICATION_LINE_TRUNCATE)}...`
+            : sanitized
         break
       }
     }

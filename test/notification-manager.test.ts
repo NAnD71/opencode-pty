@@ -1,7 +1,10 @@
 import { describe, expect, it, mock } from 'bun:test'
 import type { OpencodeClient } from '@opencode-ai/sdk'
 import { RingBuffer } from '../src/plugin/pty/buffer.ts'
-import { NotificationManager } from '../src/plugin/pty/notification-manager.ts'
+import {
+  buildExitNotification,
+  NotificationManager,
+} from '../src/plugin/pty/notification-manager.ts'
 import type { PTYSession } from '../src/plugin/pty/types.ts'
 
 type PromptPayload = {
@@ -139,6 +142,17 @@ describe('NotificationManager', () => {
     expect(payload.body.parts[0]?.text).toContain(
       'Process failed. Use pty_read with the pattern parameter to search for errors in the output.'
     )
+  })
+
+  it('strips ANSI escape sequences from the last line in exit notifications', () => {
+    const buffer = new RingBuffer()
+    buffer.append('line 1\n\x1b[31m\x1b[?9001h\x1b[2J\x1b]0;title\x07done\x1b[0m\n')
+
+    const session = createSession({ buffer })
+    const text = buildExitNotification(session, 0)
+
+    expect(text).toContain('Last Line: done')
+    expect(text).not.toContain('\x1b')
   })
 
   it('includes timeout context when the session timed out', async () => {
