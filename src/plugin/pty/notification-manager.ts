@@ -70,8 +70,11 @@ export function buildExitNotification(session: PTYSession, exitCode: number): st
     for (let i = lineCount - 1; i >= 0; i--) {
       const bufferLines = session.buffer.read(i, 1)
       const line = bufferLines[0]
-      if (line !== undefined && line.trim() !== '') {
+      if (line !== undefined) {
         const sanitized = sanitizeAnsi(line)
+        if (sanitized.trim() === '') {
+          continue
+        }
         lastLine =
           sanitized.length > NOTIFICATION_LINE_TRUNCATE
             ? `${sanitized.slice(0, NOTIFICATION_LINE_TRUNCATE)}...`

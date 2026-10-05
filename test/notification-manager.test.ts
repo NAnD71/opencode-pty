@@ -173,3 +173,16 @@ describe('NotificationManager', () => {
     expect(text).toContain('Process reached its PTY timeout and was stopped automatically.')
   })
 })
+
+describe('buildExitNotification edge cases', () => {
+  it('skips lines that become empty after sanitization', () => {
+    const buffer = new RingBuffer()
+    buffer.append('real output\n')
+    buffer.append('\x1b[2J\x1b[?25l\n')
+
+    const session = createSession({ buffer })
+    const text = buildExitNotification(session, 0)
+
+    expect(text).toContain('Last Line: real output')
+  })
+})
