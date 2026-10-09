@@ -18,6 +18,14 @@ export interface OpencodePtyOptions {
    * Default is false (started on-demand when slash command is executed).
    */
   autostart?: boolean
+
+  /**
+   * Strip ANSI/VT escape sequences from output returned by `pty_read` and
+   * `<pty_exited>` notifications (they re-execute in the host TUI otherwise).
+   * Default is true (or the PTY_SANITIZE_OUTPUT env var when set).
+   * The raw buffer is never modified; the Web UI stream stays untouched.
+   */
+  sanitizeOutput?: boolean
 }
 
 /**

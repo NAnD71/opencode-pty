@@ -296,6 +296,25 @@ This eliminates the need for polling—perfect for long-running processes like b
 | `PTY_WEB_HOSTNAME`     | `::1`      | Hostname for the web server to bind to (IPv6 loopback by default) |
 | `PTY_WEB_PORT`         | `0` (random) | Port for the web server (0 = random port)        |
 
+### Plugin Options
+
+The plugin also accepts options from your opencode config (V1 `plugin` array entry / V2 `plugins` entry):
+
+```jsonc
+{
+  "plugin": [
+    ["opencode-pty", { "sanitizeOutput": false }]
+  ]
+}
+```
+
+| Option            | Default | Description                                                        |
+| ----------------- | ------- | ------------------------------------------------------------------ |
+| `sanitizeOutput`  | `true`  | Same as `PTY_SANITIZE_OUTPUT`; when both are set, the option wins. |
+| `port`            | —       | Fixed port for the Web UI observer server (V2 only).               |
+| `hostname`        | —       | Hostname for the Web UI observer server (V2 only).                 |
+| `autostart`       | `false` | Start the Web UI observer server on plugin init (V2 only).         |
+
 ### Permissions
 
 This plugin respects OpenCode's [permission settings](https://opencode.ai/docs/permissions/) for the `bash` tool. Commands spawned via `pty_spawn` are checked against your `permission.bash` configuration.

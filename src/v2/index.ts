@@ -4,6 +4,7 @@ import type { ServerOptions } from '../web/server/server.ts'
 import { getOrCreateServer, registerV2Commands } from './commands.ts'
 import { V2SessionNotifier } from './notifier.ts'
 import { registerV2Tools } from './tools.ts'
+import { setAnsiSanitizationOverride } from '../plugin/pty/sanitize.ts'
 import { define, type PluginContextV2, type PluginV2 } from './types.ts'
 
 export * from './commands.ts'
@@ -18,6 +19,7 @@ export * from './types.ts'
 export const Plugin: PluginV2 = define({
   id: 'opencode-pty',
   setup: async (ctx: PluginContextV2) => {
+    setAnsiSanitizationOverride(ctx.options?.sanitizeOutput)
     // opencode v2 plugin contexts are server clients: `ctx.session.prompt`
     // wakes a session with a user prompt, preserving the session's current
     // model by construction. Pre-2.0 hosts without the session domain still

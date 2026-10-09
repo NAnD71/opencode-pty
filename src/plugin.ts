@@ -5,14 +5,19 @@ import { ptyWrite } from './plugin/pty/tools/write.ts'
 import { ptyRead } from './plugin/pty/tools/read.ts'
 import { ptyList } from './plugin/pty/tools/list.ts'
 import { ptyKill } from './plugin/pty/tools/kill.ts'
+import { setAnsiSanitizationOverride } from './plugin/pty/sanitize.ts'
 import { PTYServer } from './web/server/server.ts'
 import open from 'open'
 
 const ptyOpenClientCommand = 'pty-open-background-spy'
 const ptyShowServerUrlCommand = 'pty-show-server-url'
 
-export const PTYPlugin = async (context: PluginContext): Promise<PluginResult> => {
+export const PTYPlugin = async (
+  context: PluginContext,
+  options?: { sanitizeOutput?: boolean }
+): Promise<PluginResult> => {
   const { client } = context
+  setAnsiSanitizationOverride(options?.sanitizeOutput)
   const adapter = createV1Adapter(context)
   installHostAdapter(adapter)
   let ptyServer: PTYServer | undefined

@@ -42,3 +42,32 @@ describe('sanitizeAnsi', () => {
     }
   })
 })
+
+describe('sanitizeOutput plugin option', () => {
+  it('plugin option overrides the env var', async () => {
+    const { setAnsiSanitizationOverride } = await import('../src/plugin/pty/sanitize.ts')
+    const original = process.env.PTY_SANITIZE_OUTPUT
+    process.env.PTY_SANITIZE_OUTPUT = 'true'
+    try {
+      setAnsiSanitizationOverride(false)
+      expect(sanitizeAnsi('\x1b[31mred\x1b[0m')).toBe('\x1b[31mred\x1b[0m')
+      setAnsiSanitizationOverride(true)
+      expect(sanitizeAnsi('\x1b[31mred\x1b[0m')).toBe('red')
+    } finally {
+      setAnsiSanitizationOverride(undefined)
+      process.env.PTY_SANITIZE_OUTPUT = original
+    }
+  })
+
+  it('falls back to the env var when no option is set', async () => {
+    const { setAnsiSanitizationOverride } = await import('../src/plugin/pty/sanitize.ts')
+    const original = process.env.PTY_SANITIZE_OUTPUT
+    process.env.PTY_SANITIZE_OUTPUT = 'false'
+    try {
+      setAnsiSanitizationOverride(undefined)
+      expect(sanitizeAnsi('\x1b[31mred\x1b[0m')).toBe('\x1b[31mred\x1b[0m')
+    } finally {
+      process.env.PTY_SANITIZE_OUTPUT = original
+    }
+  })
+})
