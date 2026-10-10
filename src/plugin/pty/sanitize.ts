@@ -14,6 +14,11 @@ const STRING_SEQUENCES =
 // biome-ignore lint/suspicious/noControlCharactersInRegex: matching control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/g
 
+// Non-global twin of CONTROL_CHARACTERS for the fast path; every sequence the
+// passes below remove starts with one of these characters.
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matching control characters is the point
+const HAS_CONTROL_CHARACTER = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/
+
 /**
  * Whether text handed to the host (`pty_read` results and `<pty_exited>`
  * notifications) is stripped of terminal control sequences.
@@ -28,14 +33,18 @@ export function isOutputSanitizationEnabled(): boolean {
 
 /**
  * Removes terminal control sequences (CSI, OSC, ...) and remaining control
- * characters from a single line of PTY output, keeping tabs.
+ * characters from a single line of PTY output, keeping tabs, and drops
+ * trailing whitespace (ConPTY pads erased lines with spaces up to the terminal
+ * width).
  *
  * Only applied where output leaves the plugin as text; the raw buffer is kept
  * intact for the Web UI terminal.
  */
 export function sanitizeTerminalText(text: string): string {
-  return stripVTControlCharacters(text.replace(STRING_SEQUENCES, '')).replace(
-    CONTROL_CHARACTERS,
-    ''
-  )
+  if (!HAS_CONTROL_CHARACTER.test(text)) {
+    return text.trimEnd()
+  }
+  return stripVTControlCharacters(text.replace(STRING_SEQUENCES, ''))
+    .replace(CONTROL_CHARACTERS, '')
+    .trimEnd()
 }

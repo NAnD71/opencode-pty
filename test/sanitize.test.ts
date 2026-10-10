@@ -38,6 +38,13 @@ describe('sanitizeTerminalText', () => {
 
   it('leaves plain and non-ASCII text untouched', () => {
     expect(sanitizeTerminalText('héllo wörld ✓ 你好')).toBe('héllo wörld ✓ 你好')
+    expect(sanitizeTerminalText('  indented\tcode')).toBe('  indented\tcode')
+  })
+
+  it('drops trailing padding, with or without control sequences', () => {
+    // ConPTY renders an erased line as text padded with spaces to the width.
+    expect(sanitizeTerminalText(`done${' '.repeat(116)}`)).toBe('done')
+    expect(sanitizeTerminalText(`\x1b[32mdone${' '.repeat(116)}\x1b[0m\r`)).toBe('done')
   })
 })
 
